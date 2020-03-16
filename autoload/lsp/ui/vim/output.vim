@@ -331,6 +331,16 @@ function! lsp#ui#vim#output#preview(server, data, options) abort
     call setbufvar(winbufnr(s:winid), 'lsp_syntax_highlights', l:syntax_lines)
     call setbufvar(winbufnr(s:winid), 'lsp_do_conceal', l:do_conceal)
 
+    if g:lsp_preview_prettier
+      let l:value = join(l:lines, '')
+      if l:value =~ '\v(\{|[)'
+        let l:lines_prettier = split(system('echo ''' . l:value . ''' | prettier --stdin-filepath lsp.js'), "\n")
+        if !v:shell_error
+          let l:lines = l:lines_prettier
+        endif
+      endif
+    endif
+
     if g:lsp_preview_relative_to_cursor
       let l:lines = map(l:lines, {_, val -> ' ' . val . ' '})
     endif
