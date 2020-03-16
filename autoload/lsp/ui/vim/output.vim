@@ -69,6 +69,16 @@ endfunction
 function! s:get_float_positioning(height, width) abort
     let l:height = a:height
     let l:width = a:width
+    if g:lsp_preview_relative_to_cursor
+      return {
+            \ 'relative': 'cursor',
+            \ 'row': 1,
+            \ 'col': -1,
+            \ 'width': l:width,
+            \ 'height': l:height,
+            \ 'style': 'minimal',
+            \ }
+    endif
     " For a start show it below/above the cursor
     " TODO: add option to configure it 'docked' at the bottom/top/right
     let l:y = winline()
@@ -320,6 +330,11 @@ function! lsp#ui#vim#output#preview(server, data, options) abort
 
     call setbufvar(winbufnr(s:winid), 'lsp_syntax_highlights', l:syntax_lines)
     call setbufvar(winbufnr(s:winid), 'lsp_do_conceal', l:do_conceal)
+
+    if g:lsp_preview_relative_to_cursor
+      let l:lines = map(l:lines, {_, val -> ' ' . val . ' '})
+    endif
+
     call s:setcontent(l:lines, l:ft)
 
     " Get size information while still having the buffer active
